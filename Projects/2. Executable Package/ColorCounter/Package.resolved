@@ -1,0 +1,25 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "ColorizeSwift",
+        "repositoryURL": "https://github.com/mtynior/ColorizeSwift.git",
+        "state": {
+          "branch": null,
+          "revision": "2a354639173d021f4648cf1912b2b00a3a7cd83c",
+          "version": "1.6.0"
+        }
+      },
+      {
+        "package": "CoolExtensionsLib",
+        "repositoryURL": "https://github.com/ReQEnoxus/SwiftPM-CustomLibrary.git",
+        "state": {
+          "branch": null,
+          "revision": "bbf4350cdfec4217b84268f583e3d44d5a06ba4c",
+          "version": "1.0.0"
+        }
+      }
+    ]
+  },
+  "version": 1
+}
