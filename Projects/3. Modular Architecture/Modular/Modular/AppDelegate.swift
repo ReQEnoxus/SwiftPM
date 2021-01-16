@@ -1,8 +1,8 @@
 //
 //  AppDelegate.swift
-//  ReactiveProgramming
+//  Modular
 //
-//  Created by Enoxus on 27.10.2020.
+//  Created by Enoxus on 16.01.2021.
 //
 
 import UIKit
@@ -14,6 +14,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        UserDetailBundle.load()
         return true
     }
 
