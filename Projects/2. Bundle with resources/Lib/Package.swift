@@ -21,8 +21,5 @@ let package = Package(
         .target(
             name: "Lib",
             dependencies: ["SnapKit"]),
-        .testTarget(
-            name: "LibTests",
-            dependencies: ["Lib"]),
     ]
 )
