@@ -7,7 +7,6 @@
 
 import RxRelay
 import Moya
-import Provider
 import Models
 
 typealias Users = [UserViewData]
