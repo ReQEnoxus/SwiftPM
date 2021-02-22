@@ -1,7 +1,6 @@
 # SwiftPM
 Репозиторий с дополнительными материалами по [докладу](https://docs.google.com/presentation/d/1ZJzVk92yq-fPrW6IqfwV4fPY-eCNTL97rntQqj5aVpw/edit?usp=sharing) о Swift Package Manager с iOS-митапа в Технократии
-# Примеры использования
-## [Simple Dependency](https://github.com/ReQEnoxus/SwiftPM/tree/master/Projects/1.%20Simple%20Dependency)
+## [Пример 1. Simple Dependency](https://github.com/ReQEnoxus/SwiftPM/tree/master/Projects/1.%20Simple%20Dependency)
 В этом примере рассматривается подключение к проекту зависимости `SwiftNotificationBanner` через SPM. Эта библиотека позволяет отображать на экране баннеры следующим образом: <br>
 <p align="center">
   <img src="Projects/1.%20Simple%20Dependency/.github/Application.png" width="30%" height="30%"/>
@@ -45,7 +44,7 @@ class ViewController: UIViewController {
     }
 }
 ```
-## [Bundle With Resources](https://github.com/ReQEnoxus/SwiftPM/tree/master/Projects/2.%20Bundle%20with%20resources)
+## [Пример 2. Bundle With Resources](https://github.com/ReQEnoxus/SwiftPM/tree/master/Projects/2.%20Bundle%20with%20resources)
 В этом примере рассматривается создание библиотеки, использующей статические ресурсы в виде картинок и локализации. Библиотека предоставляет пользователю экран с изображением рамки и кнопкой загрузки картинки. При этом название кнопки зависит от локализации.
 <p align="center">
   <img src="Projects/2.%20Bundle%20with%20resources/.github/Lib1.png"/ width="40%" height="40%">
