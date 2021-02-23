@@ -10,7 +10,7 @@
 target 'Modular' do
   use_frameworks!
 
-  pod 'RxSwift', '6.0.0-rc.1'
+  pod 'RxSwift', '~> 5.0.0'
   pod 'Moya', '~> 14.0'
 end
 ```
@@ -29,7 +29,7 @@ pod deintegrate
 ### Шаг 3. Создание модуля `Models`
 Проще всего начать разделение именно отсюда, так как этот модуль не имеет зависимостей. Для создания нового модуля в текущем Workspace нужно выбрать следующую опцию, нажав на `+` в левом нижнем углу XCode:
 <p align="center">
-  <img src=".github/new-package.png"/ width="70%">
+  <img src=".github/new-package.png"/ width="50%">
 </p>
 
 После этого нужно просто переместить файлы в созданную папку `Sources`, исправив, где нужно, модификаторы доступа на `public`
@@ -61,7 +61,7 @@ let package = Package(
 Здесь и далее не будем останавливаться на том, что уже рассматривалось в предыдущих шагах, отметим лишь то, что так как мы используем Storyboards, мы должны явно указать модуль, где содержится нужный нам кастомный класс для контроллера:
 
 <p align="center">
-  <img src=".github/class-module.png"/ width="70%">
+  <img src=".github/class-module.png"/ width="50%">
 </p>
 
 Также, некоторые изменения нужно внести и в `Package.swift`. Из нерассмотренного ранее можно выделить подключение локального пакета в качестве зависимости:
@@ -134,4 +134,69 @@ let package = Package(
     ]
 )
 ```
-WIP
+### Шаг 6. Подключение модуля `Main`
+Исходя из построенной схемы, единственной прямой зависимостью приложения является модуль `Main`. Все остальные зависимости будут являться транзитивными. Для подключения модуля добавим его в `Frameworks, Libraries, and Embedded Content` нашего таргета:
+<p align="center">
+  <img src=".github/add-main.png"/ width="70%">
+</p>
+
+### Шаг 7. Установка rootViewController
+Так как Storyboard модуля `Main` больше не находится в основном бандле приложения, мы больше не можем просто указывать его имя в `Info.plist` для установки стартового экрана. Воспользуемся следующим хелпером, чтобы установить его:
+
+```swift
+public class MainViewController: UIViewController {  
+    public static func instantiate() -> UIViewController? {
+        return UIStoryboard(name: "Main", bundle: .module).instantiateInitialViewController()
+    }
+}
+```
+
+После этого в `SceneDelegate`:
+```swift
+class SceneDelegate: UIResponder, UIWindowSceneDelegate {
+    func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
+        guard let scene = (scene as? UIWindowScene) else { return }
+        window = UIWindow(windowScene: scene)
+        window?.rootViewController = MainViewController.instantiate()
+        window?.makeKeyAndVisible()
+    }
+}
+```
+### Шаг 8. Настройка Segue
+Переход между модулями `Main` и `UserDetail` осуществляется с помощью Segue:
+<p align="center">
+  <img src=".github/st-ref.png"/>
+</p>
+
+Для того, чтобы этот способ работал в модульной архитектуре, нам нужно вручную указать идентификатор бандла для объекта `Storyboard Reference`. Идентификатор бандла модуля в SPM формируется следующим образом: `[Package Name]-[Target Name]-resources`:
+<p align="center">
+  <img src=".github/bundle-id.png"/>
+</p>
+
+Кроме того, одно лишь указание бандла в этом объекте не гарантирует его доступность в runtime. Для того, чтобы не получить краш при выполнении перехода на экран деталки необходимо вручную загрузить соответствующий бандл. Для этого создадим следующий хэлпер в модуле `UserDetail`:
+```swift
+//
+//  BundleUtil.swift
+//  
+
+import Foundation
+
+public class UserDetailBundle {
+    public static func load() {
+        Bundle.module.load()
+    }
+}
+```
+
+И вызовем его в `AppDelegate`:
+```swift
+@main
+class AppDelegate: UIResponder, UIApplicationDelegate {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        UserDetailBundle.load()
+        return true
+    }
+}
+```
+<br>
+На этом шаге рефакторинг завершается, приложение готово к использованию
