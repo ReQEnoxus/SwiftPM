@@ -145,7 +145,7 @@ public final class RandomPictureController: UIViewController {
 }
 ```
 
-## [Пример 3. Модульная архитектура в SPM](https://github.com/ReQEnoxus/SwiftPM/tree/master/Projects/3.%20Modular%20Architecture%20with%20Storyboards)
+## [Пример 3. Modular Architecture](https://github.com/ReQEnoxus/SwiftPM/tree/master/Projects/3.%20Modular%20Architecture%20with%20Storyboards)
 В этом примере разбирается рефакторинг существующего монолитного приложения на отдельные модули. Приложение состоит из двух экранов: `Main`, содержащий список пользователей и `UserDetail`, позволяющий просмотреть детальную информацию о пользователе. Положение осложнено тем, что у нас уже есть 2 зависимости, подключенные через CocoaPods, а верстка реализована с помощью Storyboard:
 <p align="center">
   <img src="Projects/3.%20Modular%20Architecture%20with%20Storyboards/.github/modular.png"/>
