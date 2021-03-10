@@ -7,12 +7,21 @@
   <img src=".github/project-template.png"/>
 </p>
 После этого вводим название и сохраняем в удобное место
-![]() --- 2.png <br>
-Устанавливаем ограничения по платформе в настрйках проекта
-![]() --- 3.png <br>
+<p align="center">
+  <img src=".github/project-name.png"/>
+</p>
+Устанавливаем ограничения по платформе в настрйках проекта:
+<p align="left">
+  <img src=".github/platfrom-requirements.png"/>
+</p>
 Устанавливаем значение флага `Build Libraries for Distribution` в значение `YES`, для того, чтобы позже работать с XCFramework
-![]() --- 4.png <br>
+<p align="center">
+  <img src=".github/build-for-distribution.png"/>
+</p>
 Итоговая файловая структура имеет следующий вид:
+<p align="left">
+  <img src=".github/file-structure.png"/>
+</p>
 
 ### Шаг 2. Добавляем исходный код
 Добавим следующий Swift-файл в директорию фреймворка:
