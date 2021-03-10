@@ -293,7 +293,7 @@ class ViewController: UIViewController {
     }
 }
 ```
-
+А [здесь](https://github.com/ReQEnoxus/HandyExtensionsFramework) можно найти загруженную на GitHub версию фреймворка для теста
 
 ## [Пример 4. Modular Architecture](https://github.com/ReQEnoxus/SwiftPM/tree/master/Projects/4.%20Modular%20Architecture%20with%20Storyboards)
 В этом примере разбирается рефакторинг существующего монолитного приложения на отдельные модули. Приложение состоит из двух экранов: `Main`, содержащий список пользователей и `UserDetail`, позволяющий просмотреть детальную информацию о пользователе. Положение осложнено тем, что у нас уже есть 2 зависимости, подключенные через CocoaPods, а верстка реализована с помощью Storyboard:
