@@ -145,10 +145,160 @@ public final class RandomPictureController: UIViewController {
 }
 ```
 
-## [Пример 3. Modular Architecture](https://github.com/ReQEnoxus/SwiftPM/tree/master/Projects/3.%20Modular%20Architecture%20with%20Storyboards)
+## [Пример 3. Binary Frameworks](https://github.com/ReQEnoxus/SwiftPM/tree/master/Projects/3.%20Binary%20Frameworks)
+В этом примере разбирается создание простейшего бинарного фреймворка для двух платформ и его упаковка в контейнер `XCFramework`
+
+### Шаг 1. Создание проекта в XCode
+При создании проекта выбираем в верхней части окна платформу `iOS`, и темплейт `Framework`
+<p align="center">
+  <img src="Projects/3.%20Binary%20Frameworks/.github/project-template.png"/>
+</p>
+После этого вводим название и сохраняем в удобное место
+<p align="center">
+  <img src="Projects/3.%20Binary%20Frameworks/.github/project-name.png"/>
+</p>
+Устанавливаем ограничения по платформе в настрйках проекта:
+<p align="left">
+  <img src="Projects/3.%20Binary%20Frameworks/.github/platfrom-requirements.png"/>
+</p>
+Устанавливаем значение флага `Build Libraries for Distribution` в значение `YES`, для того, чтобы позже работать с XCFramework
+<p align="center">
+  <img src="Projects/3.%20Binary%20Frameworks/.github/build-for-distribution.png"/>
+</p>
+Итоговая файловая структура имеет следующий вид:
+<p align="left">
+  <img src="Projects/3.%20Binary%20Frameworks/.github/file-structure.png"/>
+</p>
+
+### Шаг 2. Добавляем исходный код
+Добавим следующий Swift-файл в директорию фреймворка:
+```swift
+//
+//  IntExtension.swift
+//  HandyExtensionsFramework
+//
+//  Created by Enoxus on 09.03.2021.
+//
+
+import Foundation
+
+public extension Int {
+    var string: String {
+        return "\(self)"
+    }
+}
+```
+### Шаг 3. Сборка фреймворков
+Осуществим сборку фреймворков под платформы `iOS` и `iOS Simulator`. Для этого воспользуемся командой `xcodebuild archive`, передав в аргументах название таргета, конфигурацию,
+целевую платформу, путь выходного файла и необходимые флаги. <br> <br>
+Сборка для симулятора:
+```bash
+xcodebuild archive \
+-scheme HandyExtensionsFramework \
+-configuration Release \
+-destination 'generic/platform=iOS Simulator' \
+-archivePath './build/HandyExtensionsFramework.framework-iphonesimulator.xcarchive' \
+SKIP_INSTALL=NO \
+BUILD_LIBRARIES_FOR_DISTRIBUTION=YES
+```
+Сборка для iOS:
+```bash
+xcodebuild archive \
+-scheme HandyExtensionsFramework \
+-configuration Release \
+-destination 'generic/platform=iOS' \
+-archivePath './build/HandyExtensionsFramework.framework-iphoneos.xcarchive' \
+SKIP_INSTALL=NO \
+BUILD_LIBRARIES_FOR_DISTRIBUTION=YES
+```
+
+### Шаг 4. Упаковка в XCFramework
+Для упаковки скомпилированных фреймворков выполняем следующую команду:
+```bash
+xcodebuild -create-xcframework \
+-framework './build/HandyExtensionsFramework.framework-iphonesimulator.xcarchive/Products/Library/Frameworks/HandyExtensionsFramework.framework' \
+-framework './build/HandyExtensionsFramework.framework-iphoneos.xcarchive/Products/Library/Frameworks/HandyExtensionsFramework.framework' \
+-output './build/HandyExtensionsFramework.xcframework'
+```
+В итоге получаем следующую структуру файлов:
+```bash
+HandyExtensionsFramework.xcframework
+├── Info.plist
+├── ios-arm64_armv7
+│   └── HandyExtensionsFramework.framework
+└── ios-arm64_i386_x86_64-simulator
+    └── HandyExtensionsFramework.framework
+```
+### Шаг 5. Интеграция с SPM
+Архивируем полученный XCFramework:
+```bash
+zip HandyExtensionsFramework.xcframework.zip HandyExtensionsFramework.xcframework
+```
+Загружаем полученный архив на любой хостинг, после чего создаем манифест пакета Package.swift:
+```swift
+// swift-tools-version:5.3
+import PackageDescription
+
+let package = Package(
+    name: "HandyExtensionsFramework",
+    products: [
+        .library(
+            name: "HandyExtensionsFramework",
+            targets: ["HandyExtensionsFramework"]
+        ),
+    ],
+    dependencies: [],
+    targets: [
+        .binaryTarget(
+          name: "HandyExtensionsFramework",
+          url: "https://url.to/HandyExtensionsFramework.xcframework.zip",
+          checksum: "" // TODO
+        )
+    ]
+)
+```
+На данном этапе нам необходима контрольная сумма пакета, чтобы убедиться в том, что пользователи получат действительно верный артефакт. Вычисляем ее следующим образом:
+```bash
+swift package compute-checksum HandyExtensionsFramework.xcframework.zip
+```
+Полученное значение устанавливаем в соответствующее поле:
+```swift
+targets: [
+    .binaryTarget(
+      name: "HandyExtensionsFramework",
+      url: "https://url.to/HandyExtensionsFramework.xcframework.zip",
+      checksum: "3074c78131724148e57503c82f8dae97cd76862a0d7776da674bfd1c7705f80c"
+    )
+]
+```
+После этого можем разместить полученный Package.swift на любом git-хостинге и подключать библиотеку с помощью XCode или через dependencies в Package.swift
+### Шаг 6. Использование
+После подключения библиотеки и добавления ее к таргету приложения, можем импортировать ее и использовать предоставляемый ей метод:
+```swift
+//
+//  ViewController.swift
+//  FrameworkClient
+//
+//  Created by Enoxus on 09.03.2021.
+//
+
+import UIKit
+import HandyExtensionsFramework
+
+class ViewController: UIViewController {
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        print(25.string) // "25"
+    }
+}
+```
+
+
+## [Пример 4. Modular Architecture](https://github.com/ReQEnoxus/SwiftPM/tree/master/Projects/4.%20Modular%20Architecture%20with%20Storyboards)
 В этом примере разбирается рефакторинг существующего монолитного приложения на отдельные модули. Приложение состоит из двух экранов: `Main`, содержащий список пользователей и `UserDetail`, позволяющий просмотреть детальную информацию о пользователе. Положение осложнено тем, что у нас уже есть 2 зависимости, подключенные через CocoaPods, а верстка реализована с помощью Storyboard:
 <p align="center">
-  <img src="Projects/3.%20Modular%20Architecture%20with%20Storyboards/.github/modular.png"/>
+  <img src="Projects/4.%20Modular%20Architecture%20with%20Storyboards/.github/modular.png"/>
 </p>
 
 ### Шаг 1. Отключение CocoaPods
@@ -170,13 +320,13 @@ pod deintegrate
 ### Шаг 2. Определение итоговой архитектуры
 Целью проводимого рефакторинга является построение архитектуры, в которой каждый экран будет являться отдельным модулем со своими зависимостями. Аналогичным образом в отдельный модуль будут вынесены классы предметной области. Это позволит добиться более удобного переиспользования кода, а также ускорит сборку проекта, так как повторной сборке будут подвергнуты лишь те модули, которые реально были изменены. Схематично новую архитектуру можно изобразить в виде следующего графа:
 <p align="center">
-  <img src="Projects/3.%20Modular%20Architecture%20with%20Storyboards/.github/modular-graph.png"/ width="70%">
+  <img src="Projects/4.%20Modular%20Architecture%20with%20Storyboards/.github/modular-graph.png"/ width="70%">
 </p>
 
 ### Шаг 3. Создание модуля `Models`
 Проще всего начать разделение именно отсюда, так как этот модуль не имеет зависимостей. Для создания нового модуля в текущем Workspace нужно выбрать следующую опцию, нажав на `+` в левом нижнем углу XCode:
 <p align="center">
-  <img src="Projects/3.%20Modular%20Architecture%20with%20Storyboards/.github/new-package.png"/ width="50%">
+  <img src="Projects/4.%20Modular%20Architecture%20with%20Storyboards/.github/new-package.png"/ width="50%">
 </p>
 
 После этого нужно просто переместить файлы в созданную папку `Sources`, исправив, где нужно, модификаторы доступа на `public`
@@ -208,7 +358,7 @@ let package = Package(
 Здесь и далее не будем останавливаться на том, что уже рассматривалось в предыдущих шагах, отметим лишь то, что так как мы используем Storyboards, мы должны явно указать модуль, где содержится нужный нам кастомный класс для контроллера:
 
 <p align="center">
-  <img src="Projects/3.%20Modular%20Architecture%20with%20Storyboards/.github/class-module.png"/ width="50%">
+  <img src="Projects/4.%20Modular%20Architecture%20with%20Storyboards/.github/class-module.png"/ width="50%">
 </p>
 
 Также, некоторые изменения нужно внести и в `Package.swift`. Из нерассмотренного ранее можно выделить подключение локального пакета в качестве зависимости:
@@ -284,7 +434,7 @@ let package = Package(
 ### Шаг 6. Подключение модуля `Main`
 Исходя из построенной схемы, единственной прямой зависимостью приложения является модуль `Main`. Все остальные зависимости будут являться транзитивными. Для подключения модуля добавим его в `Frameworks, Libraries, and Embedded Content` нашего таргета:
 <p align="center">
-  <img src="Projects/3.%20Modular%20Architecture%20with%20Storyboards/.github/add-main.png"/ width="70%">
+  <img src="Projects/4.%20Modular%20Architecture%20with%20Storyboards/.github/add-main.png"/ width="70%">
 </p>
 
 ### Шаг 7. Установка rootViewController
@@ -312,12 +462,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 ### Шаг 8. Настройка Segue
 Переход между модулями `Main` и `UserDetail` осуществляется с помощью Segue:
 <p align="center">
-  <img src="Projects/3.%20Modular%20Architecture%20with%20Storyboards/.github/st-ref.png"/>
+  <img src="Projects/4.%20Modular%20Architecture%20with%20Storyboards/.github/st-ref.png"/>
 </p>
 
 Для того, чтобы этот способ работал в модульной архитектуре, нам нужно вручную указать идентификатор бандла для объекта `Storyboard Reference`. Идентификатор бандла модуля в SPM формируется следующим образом: `[Package Name]-[Target Name]-resources`:
 <p align="center">
-  <img src="Projects/3.%20Modular%20Architecture%20with%20Storyboards/.github/bundle-id.png"/>
+  <img src="Projects/4.%20Modular%20Architecture%20with%20Storyboards/.github/bundle-id.png"/>
 </p>
 
 Кроме того, одно лишь указание бандла в этом объекте не гарантирует его доступность в runtime. Для того, чтобы не получить краш при выполнении перехода на экран деталки необходимо вручную загрузить соответствующий бандл. Для этого создадим следующий хэлпер в модуле `UserDetail`:
