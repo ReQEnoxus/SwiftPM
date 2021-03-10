@@ -146,3 +146,4 @@ class ViewController: UIViewController {
     }
 }
 ```
+А [здесь](https://github.com/ReQEnoxus/HandyExtensionsFramework) можно найти загруженную на GitHub версию фреймворка для теста
